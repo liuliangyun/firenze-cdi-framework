@@ -1,0 +1,186 @@
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>CDI framework 使用说明</title>
+</head>
+<body>
+<h3>概述</h3>
+<div>CDI framework是一个简易版本的依赖注入框架，提供了一系列注解帮助用户声明需要自动注入的对象。</div>
+
+<h3>详细介绍</h3>
+<div>
+    CDI framework 提供的注解包括以下几种：
+    <ul>
+        <li>@Inject</li>
+        <li>@Named</li>
+        <li>@Singleton</li>
+    </ul>
+</div>
+<div class="example">
+    <div>@Inject注解标识在构造器上，框架会自动帮助我们注入构造器参数中引用接口对应的实现类。</div>
+    <div>
+        例如：我们有一个MovieLister类，该类有一个构造函数，参数为MovieFinder引用接口，有一个接口实现类为ColonDelimitedMovieFinder
+        ，当我们在构造函数上使用注解@Inject时，容器将自动注入ColonDelimitedMovieFinder对象，并成功调用该对象的findAll方法。
+    </div>
+<pre>
+    class Main {
+        public static void mainApp (String[] args) {
+            ApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+            MovieListener listener = (MovieListener) context.getBean("movieListener");
+            listener.findAll()
+        }
+    }
+    class MovieLister {
+        private MovieFinder finder;
+
+        @Inject
+        public MovieLister(MovieFinder finder) {
+            this.finder = finder;
+        }
+
+        public void findAll() {
+            finder.findAll();
+        }
+    }
+
+    interface MovieFinder {
+        void findAll();
+    }
+
+    class ColonDelimitedMovieFinder implements MovieFinder {
+        @Override
+        public void findAll() {
+            System.out.println("findAll in ColonDelimitedMovieFinder");
+        }
+    }
+</pre>
+</div>
+
+<div class="example">
+    <div>@Named注解标识在实现类上，给实现类定义别名。</div>
+    <div>@Named注解标识在需要依赖注入的地方，实现通过别名注入对应的实现类</div>
+    <div>
+        例如：我们有一个MovieLister类，该类使用了@Inject注解注入MovieFinder，MovieFinder的接口实现类分别为ColonDelimitedMovieFinder
+         和DatabaseMovieFinder，当我们在MovieLister的构造函数注入时使用@Named("database")注解，然后在DatabaseMovieFinder类上同样
+        使用@Named("database")注解，容器将自动注入DatabaseMovieFinder对象，并成功调用该对象的findAll方法。
+    </div>
+<pre>
+    class Main {
+        public static void mainApp (String[] args) {
+            ApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+            MovieListener listener = (MovieListener) context.getBean("movieListener");
+            listener.findAll()
+        }
+    }
+    class MovieLister {
+        private MovieFinder finder;
+
+        @Inject
+        @Named('database')
+        public MovieLister(MovieFinder finder) {
+            this.finder = finder;
+        }
+
+        public void findAll() {
+            finder.findAll();
+        }
+    }
+
+    interface MovieFinder {
+        void findAll();
+    }
+
+    class ColonDelimitedMovieFinder implements MovieFinder {
+        @Override
+        public void findAll() {
+            System.out.println("findAll in ColonDelimitedMovieFinder");
+        }
+    }
+
+    @Named("database")
+    class DatabaseMovieFinder implements MovieFinder {
+        @Override
+        public void findAll() {
+            System.out.println("findAll in DatabaseMovieFinder");
+        }
+    }
+</pre>
+</div>
+
+<div class="example">
+    <div>@Singleton注解标识在实现类上，表示这是一个单例对象，在当前应用中只存在一个。</div>
+    <div>
+        例如：我们有一个MovieLister1类和MovieLister2类，这两个类都使用了@Inject注解注入MovieFinder，MovieFinder的接口实现类为使用了
+        @Singleton注解标识的ColonDelimitedMovieFinder，那么MovieLister1类和MovieLister2类注入的将是同一个ColonDelimitedMovieFinder
+        对象。
+    </div>
+<pre>
+    class Main {
+        public static void mainApp (String[] args) {
+            ApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+            MovieListener1 listener1 = (MovieListener1) context.getBean("movieListener1");
+            MovieListener2 listener2 = (MovieListener2) context.getBean("movieListener2");
+            if (listener1.getClass() === listener2.getClass()) {
+                System.out.println('单例模式设置正确')
+            }
+        }
+    }
+
+    class MovieLister1 {
+        private MovieFinder finder;
+
+        @Inject
+        public MovieLister(MovieFinder finder) {
+            this.finder = finder;
+        }
+
+        public void findAll() {
+            finder.findAll();
+        }
+
+        public Class getClass() {
+            return finder.getClass();
+        }
+    }
+
+    class MovieLister2 {
+        private MovieFinder finder;
+
+        @Inject
+        public MovieLister(MovieFinder finder) {
+            this.finder = finder;
+        }
+
+        public void findAll() {
+            finder.findAll();
+        }
+
+        public Class getClass() {
+            return finder.getClass();
+        }
+    }
+
+    interface MovieFinder {
+        void findAll();
+    }
+
+    @Singleton
+    class ColonDelimitedMovieFinder implements MovieFinder {
+        @Override
+        public void findAll() {
+            System.out.println("findAll in ColonDelimitedMovieFinder");
+        }
+    }
+</pre>
+</div>
+
+<h3>补充</h3>
+<div>
+    <ul>
+        <li>框架可以扫描并管理应用中所有的bean（xml配置bean或者java文件配置bean）</li>
+        <li>Bean的默认名称是小写class名</li>
+        <li>如何声明bean？</li>
+    </ul>
+</div>
+</body>
+</html>
