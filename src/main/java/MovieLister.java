@@ -6,7 +6,7 @@ import java.util.List;
 
 public class MovieLister {
     @Inject
-    @Named("colonDelimited")
+    @Named("database")
     MovieFinder finder;
 
     public List<Movie> moviesDirectedBy(String director){

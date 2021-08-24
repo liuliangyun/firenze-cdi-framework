@@ -3,44 +3,26 @@ import annotations.Named;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class FirenzeContainer implements Container{
-    private Map<String, Object> compMap = new HashMap<>();
+    private Map<Class, List<Class>> interfaceMap = new HashMap<>();
 
     @Override
-    public void registerComponent(Class clazz) {
-        registerComponent(clazz, clazz, null);
-    }
-
-    @Override
-    public void registerComponent(Class compKey, Class compImplementation, Object[] parameters) {
-        String key = compImplementation.getSimpleName();
-
-        //  处理类上加@Named的情况
-        if (compImplementation.isAnnotationPresent(Named.class)) {
-            Named namedAnnotation = (Named) compImplementation.getAnnotation(Named.class);
-            key = namedAnnotation.value();
-        }
-
-        if (compMap.get(key) != null) {
-            return;
-        }
-
-        Constructor[] constructors = compImplementation.getConstructors();
+    public Object getComponent(Class clazz) {
+        Constructor[] constructors = clazz.getConstructors();
         try {
-            // TODO: 只支持一个构造方法，后续支持多个构造方法，应该找到与parameters类型相同的构造方法
             Constructor constructor = constructors[0];
             Object comp = constructor.newInstance(null);
 
             // 处理属性上加注解@Inject的情况
-            handleInjectField(compImplementation, comp);
+            handleInjectField(clazz, comp);
 
-            compMap.put(key, comp);
+            return comp;
         } catch (Exception e) {
             System.out.println(e);
         }
+        return null;
     }
 
     private void handleInjectField(Class compImplementation, Object comp) {
@@ -48,40 +30,70 @@ public class FirenzeContainer implements Container{
         for(Field field:fields){
             Inject inject = field.getAnnotation(Inject.class);
             if(inject != null) {
-                // 处理属性上加注解@Named的情况
                 Class clazz = field.getType();
-                String key = clazz.getSimpleName();
-                if (field.isAnnotationPresent(Named.class)) {
-                    Named namedAnnotation = field.getAnnotation(Named.class);
-                    key = namedAnnotation.value();
-                }
-                Object arg = getComponentForParam(key);
+                String namedValue = getFieldNamedValue(field);
+                Object arg = getComponentForField(clazz, namedValue);
                 try {
                     field.set(comp, arg);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    System.out.println(e);
                 }
             }
         }
     }
 
-    private Object getComponentForParam(String key) {
-        for (String mapKey: compMap.keySet()) {
-            if (key.equals(mapKey)) {
-                return compMap.get(key);
+    private String getFieldNamedValue(Field field) {
+        String value = null;
+        if (field.isAnnotationPresent(Named.class)) {
+            Named namedAnnotation = (Named) field.getAnnotation(Named.class);
+            value = namedAnnotation.value();
+        }
+        return value;
+    }
+
+    private Object getComponentForField(Class clazz, String key) {
+        Class fieldClazz = clazz;
+        if (clazz.isInterface()) {
+            List<Class> allImplementations = getAllImplementations(clazz);
+            if (key == null) {
+                fieldClazz = allImplementations.get(0);
+            } else {
+                fieldClazz = allImplementations.stream()
+                        .filter(impl -> isSpecificImplementation(impl, key))
+                        .findFirst()
+                        .orElse(null);
             }
         }
-        return null;
+        return getComponent(fieldClazz);
+    }
+
+    private boolean isSpecificImplementation(Class implementation, String key) {
+        String name = getImplementationClassNamedValue(implementation);
+        return Objects.equals(key, name);
+    }
+
+    private String getImplementationClassNamedValue(Class clazz) {
+        String value = clazz.getSimpleName();
+        if (clazz.isAnnotationPresent(Named.class)) {
+            Named namedAnnotation = (Named) clazz.getAnnotation(Named.class);
+            value = namedAnnotation.value();
+        }
+        return value;
+    }
+
+    private List<Class> getAllImplementations(Class clazz) {
+        return interfaceMap.get(clazz);
     }
 
     @Override
-    public Object getComponent(Class clazz) {
-        //  处理类上加@Named的情况
-        String key = clazz.getSimpleName();
-        if (clazz.isAnnotationPresent(Named.class)) {
-            Named namedAnnotation = (Named) clazz.getAnnotation(Named.class);
-            key = namedAnnotation.value();
+    public void registerImplementation(Class clazzInterface, Class clazzImplementation) {
+        if (interfaceMap.containsKey(clazzInterface)) {
+            List<Class> implementations = interfaceMap.get(clazzInterface);
+            implementations.add(clazzImplementation);
+        } else {
+            List<Class> implementations = new ArrayList<>();
+            implementations.add(clazzImplementation);
+            interfaceMap.put(clazzInterface, implementations);
         }
-        return compMap.get(key);
     }
 }
