@@ -1,14 +1,13 @@
 import annotations.Inject;
+import annotations.Named;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MovieLister {
     @Inject
+    @Named("colonDelimited")
     MovieFinder finder;
-
-    public MovieLister() {
-    }
 
     public List<Movie> moviesDirectedBy(String director){
         List movies = new ArrayList<Movie>();

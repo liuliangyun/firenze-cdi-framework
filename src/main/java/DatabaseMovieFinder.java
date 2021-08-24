@@ -1,6 +1,9 @@
+import annotations.Named;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Named("database")
 public class DatabaseMovieFinder implements MovieFinder{
     @Override
     public List<Movie> findAll() {

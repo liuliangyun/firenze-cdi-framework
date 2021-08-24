@@ -13,7 +13,8 @@ public class Main {
 
     private static Container configureContainer() {
         Container container = new FirenzeContainer();
-        container.registerComponent(MovieFinder.class, ColonDelimitedMovieFinder.class, null);
+        container.registerComponent(ColonDelimitedMovieFinder.class);
+        container.registerComponent(DatabaseMovieFinder.class);
         container.registerComponent(MovieLister.class);
         return container;
     }

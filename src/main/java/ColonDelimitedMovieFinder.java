@@ -1,6 +1,9 @@
+import annotations.Named;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Named("colonDelimited")
 public class ColonDelimitedMovieFinder implements MovieFinder {
     private String movieFile = "movies.txt";
 
