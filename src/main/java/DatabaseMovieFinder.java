@@ -1,8 +1,10 @@
 import annotations.Named;
+import annotations.Singleton;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 @Named("database")
 public class DatabaseMovieFinder implements MovieFinder{
     @Override

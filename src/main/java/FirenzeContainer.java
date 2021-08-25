@@ -1,5 +1,6 @@
 import annotations.Inject;
 import annotations.Named;
+import annotations.Singleton;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -7,9 +8,25 @@ import java.util.*;
 
 public class FirenzeContainer implements Container{
     private Map<Class, List<Class>> interfaceMap = new HashMap<>();
+    private Map<String, Object> singletonComponentMap = new HashMap<>();
 
     @Override
     public Object getComponent(Class clazz) {
+        if (clazz.isAnnotationPresent(Singleton.class)) {
+            String name = getClassNamedValue(clazz);
+            if (singletonComponentMap.get(name) != null) {
+                return singletonComponentMap.get(name);
+            }
+            Object instance = newInstance(clazz);
+            singletonComponentMap.put(name, instance);
+            return instance;
+        }
+
+        Object instance = newInstance(clazz);
+        return instance;
+    }
+
+    private Object newInstance(Class clazz) {
         Constructor[] constructors = clazz.getConstructors();
         try {
             Constructor constructor = constructors[0];
@@ -68,11 +85,11 @@ public class FirenzeContainer implements Container{
     }
 
     private boolean isSpecificImplementation(Class implementation, String key) {
-        String name = getImplementationClassNamedValue(implementation);
+        String name = getClassNamedValue(implementation);
         return Objects.equals(key, name);
     }
 
-    private String getImplementationClassNamedValue(Class clazz) {
+    private String getClassNamedValue(Class clazz) {
         String value = clazz.getSimpleName();
         if (clazz.isAnnotationPresent(Named.class)) {
             Named namedAnnotation = (Named) clazz.getAnnotation(Named.class);
