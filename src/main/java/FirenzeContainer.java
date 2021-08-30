@@ -1,48 +1,67 @@
 import annotations.Inject;
 import annotations.Named;
 import annotations.Singleton;
+import exceptions.CircularDependencyException;
+import exceptions.InterfaceInjectException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class FirenzeContainer implements Container{
     private Map<Class, List<Class>> interfaceMap = new HashMap<>();
+    private Set<Class> generatingClass = new HashSet<>();
     private Map<String, Object> singletonComponentMap = new HashMap<>();
 
     @Override
-    public Object getComponent(Class clazz) {
+    public Object getComponent(Class clazz)
+            throws InterfaceInjectException, CircularDependencyException {
+        if (generatingClass.contains(clazz)) {
+            throw new CircularDependencyException("there are circular dependency on " + clazz.getSimpleName());
+        }
+
+        generatingClass.add(clazz);
         if (clazz.isAnnotationPresent(Singleton.class)) {
             String name = getClassNamedValue(clazz);
             if (singletonComponentMap.get(name) != null) {
+                generatingClass.remove(clazz);
                 return singletonComponentMap.get(name);
             }
             Object instance = newInstance(clazz);
             singletonComponentMap.put(name, instance);
+            generatingClass.remove(clazz);
             return instance;
         }
 
         Object instance = newInstance(clazz);
+        generatingClass.remove(clazz);
         return instance;
     }
 
-    private Object newInstance(Class clazz) {
+    private Object newInstance(Class clazz)
+            throws InterfaceInjectException, CircularDependencyException {
         Constructor[] constructors = clazz.getConstructors();
+        Constructor constructor = constructors[0];
+        Object comp = null;
         try {
-            Constructor constructor = constructors[0];
-            Object comp = constructor.newInstance(null);
-
-            // 处理属性上加注解@Inject的情况
-            handleInjectField(clazz, comp);
-
-            return comp;
-        } catch (Exception e) {
-            System.out.println(e);
+            comp = constructor.newInstance(null);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
-        return null;
+
+        // 处理属性上加注解@Inject的情况
+        handleInjectField(clazz, comp);
+
+        return comp;
     }
 
-    private void handleInjectField(Class compImplementation, Object comp) {
+    private void handleInjectField(Class compImplementation, Object comp)
+            throws InterfaceInjectException, CircularDependencyException {
         Field[] fields = compImplementation.getDeclaredFields();
         for(Field field:fields){
             Inject inject = field.getAnnotation(Inject.class);
@@ -53,7 +72,7 @@ public class FirenzeContainer implements Container{
                 try {
                     field.set(comp, arg);
                 } catch (IllegalAccessException e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                 }
             }
         }
@@ -68,17 +87,29 @@ public class FirenzeContainer implements Container{
         return value;
     }
 
-    private Object getComponentForField(Class clazz, String key) {
+    private Object getComponentForField(Class clazz, String key)
+            throws InterfaceInjectException, CircularDependencyException {
         Class fieldClazz = clazz;
         if (clazz.isInterface()) {
             List<Class> allImplementations = getAllImplementations(clazz);
+            if (allImplementations == null) {
+                throw new InterfaceInjectException("there is no implementation for interface " + clazz.getSimpleName());
+            }
             if (key == null) {
+                if (allImplementations.size() > 1) {
+                    throw new InterfaceInjectException("there are multi implementation for interface " + clazz.getSimpleName()
+                            + ", must specify which implementation you want to inject");
+                }
                 fieldClazz = allImplementations.get(0);
             } else {
                 fieldClazz = allImplementations.stream()
                         .filter(impl -> isSpecificImplementation(impl, key))
                         .findFirst()
                         .orElse(null);
+
+                if (fieldClazz == null) {
+                    throw new InterfaceInjectException(key + " is not a implementation name of " + clazz.getSimpleName());
+                }
             }
         }
         return getComponent(fieldClazz);

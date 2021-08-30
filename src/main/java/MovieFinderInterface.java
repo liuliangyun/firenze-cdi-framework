@@ -1,5 +1,5 @@
 import java.util.List;
 
-public interface MovieFinder {
+public interface MovieFinderInterface {
     List<Movie> findAll();
 }

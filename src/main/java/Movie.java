@@ -31,4 +31,22 @@ public class Movie {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj instanceof Movie) {
+            Movie movie = (Movie) obj;
+            if (movie.getDirector().equals(this.director) && movie.getTitle().equals(this.title)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        String key = this.director + this.title + this.description;
+        return key.hashCode();
+    }
 }

@@ -26,24 +26,24 @@
     class Main {
         public static void main (String[] args) {
             Container container = configureContainer();
-            MovieListener listener = (MovieListener) container.getComponent(MovieLister.class);
+            MovieListener listener = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
             listener.all()
         }
     }
-    class MovieLister {
+    class MovieListerInjectClassDependency {
         @Inject
-        MovieFinder finder;
+        MovieFinderInterface finder;
 
         public void all() {
             finder.findAll();
         }
     }
 
-    interface MovieFinder {
+    interface MovieFinderInterface {
         void findAll();
     }
 
-    class ColonDelimitedMovieFinder implements MovieFinder {
+    class ColonDelimitedMovieFinder implements MovieFinderInterface {
         @Override
         public void findAll() {
             System.out.println("findAll in ColonDelimitedMovieFinder");
@@ -65,25 +65,25 @@
     class Main {
         public static void main (String[] args) {
             Container container = configureContainer();
-            MovieListener listener = (MovieListener) container.getComponent(MovieLister.class);
+            MovieListener listener = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
             listener.all()
         }
     }
-    class MovieLister {
+    class MovieListerInjectClassDependency {
         @Inject
         @Named('database')
-        MovieFinder finder;
+        MovieFinderInterface finder;
 
         public void all() {
             finder.findAll();
         }
     }
 
-    interface MovieFinder {
+    interface MovieFinderInterface {
         void findAll();
     }
 
-    class ColonDelimitedMovieFinder implements MovieFinder {
+    class ColonDelimitedMovieFinder implements MovieFinderInterface {
         @Override
         public void findAll() {
             System.out.println("findAll in ColonDelimitedMovieFinder");
@@ -91,7 +91,7 @@
     }
 
     @Named("database")
-    class DatabaseMovieFinder implements MovieFinder {
+    class DatabaseMovieFinder implements MovieFinderInterface {
         @Override
         public void findAll() {
             System.out.println("findAll in DatabaseMovieFinder");
@@ -111,17 +111,17 @@
     class Main {
         public static void main (String[] args) {
             Container container = configureContainer();
-            MovieListener listener1 = (MovieListener) container.getComponent(MovieLister.class);
-            MovieListener listener2 = (MovieListener) container.getComponent(MovieLister.class);
+            MovieListener listener1 = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
+            MovieListener listener2 = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
             listener1.all();
             listener2.all();
             //验证lister1.finder.hashCode() == lister2.finder.hashCode()
         }
     }
 
-    class MovieLister {
+    class MovieListerInjectClassDependency {
         @Inject
-        MovieFinder finder;
+        MovieFinderInterface finder;
 
         public void all() {
             finder.findAll();
@@ -129,12 +129,12 @@
     }
 
 
-    interface MovieFinder {
+    interface MovieFinderInterface {
         void findAll();
     }
 
     @Singleton
-    class ColonDelimitedMovieFinder implements MovieFinder {
+    class ColonDelimitedMovieFinder implements MovieFinderInterface {
         @Override
         public void findAll() {
             System.out.println("findAll in ColonDelimitedMovieFinder");

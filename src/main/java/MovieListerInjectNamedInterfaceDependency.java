@@ -4,10 +4,10 @@ import annotations.Named;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieLister {
+public class MovieListerInjectNamedInterfaceDependency {
     @Inject
     @Named("database")
-    MovieFinder finder;
+    MovieFinderInterface finder;
 
     public List<Movie> moviesDirectedBy(String director){
         List movies = new ArrayList<Movie>();
