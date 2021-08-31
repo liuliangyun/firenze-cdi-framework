@@ -1,6 +1,15 @@
 import exceptions.CircularDependencyException;
 import exceptions.InterfaceInjectException;
 import org.junit.jupiter.api.Test;
+import testCases.Movie;
+import testCases.circularDependency.MovieListerAInjectB;
+import testCases.injectClassDependency.MovieListerInjectClassDependency;
+import testCases.injectInterfaceDependency.ColonDelimitedMovieFinder;
+import testCases.injectInterfaceDependency.DatabaseMovieFinder;
+import testCases.injectInterfaceDependency.MovieFinderInterface;
+import testCases.injectInterfaceDependency.MovieListerInjectInterfaceDependency;
+import testCases.injectInterfaceDependency.MovieListerInjectNamedInterfaceDependency;
+import testCases.withoutDependency.MovieListerWithoutDependency;
 
 import java.util.Arrays;
 import java.util.List;
@@ -136,12 +145,10 @@ public class FirenzeContainerTest {
         Container container = new FirenzeContainer();
 
         // when get component annotated with singleton twice
-        MovieListerInjectClassDependency lister1 = (MovieListerInjectClassDependency)
-                container.getComponent(MovieListerInjectClassDependency.class);
-        MovieListerInjectClassDependency lister2 = (MovieListerInjectClassDependency)
-                container.getComponent(MovieListerInjectClassDependency.class);
+        MovieListerWithoutDependency lister1 = (MovieListerWithoutDependency) container.getComponent(MovieListerWithoutDependency.class);
+        MovieListerWithoutDependency lister2 = (MovieListerWithoutDependency) container.getComponent(MovieListerWithoutDependency.class);
 
         // lister1 and lister2 is the same instance
-        assertEquals(lister1.finder.hashCode(), lister2.finder.hashCode());
+        assertEquals(lister1.hashCode(), lister2.hashCode());
     }
 }

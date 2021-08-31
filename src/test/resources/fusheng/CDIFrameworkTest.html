@@ -26,13 +26,13 @@
     class Main {
         public static void main (String[] args) {
             Container container = configureContainer();
-            MovieListener listener = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
-            listener.all()
+            MovieListener lister = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
+            lister.all()
         }
     }
     class MovieListerInjectClassDependency {
         @Inject
-        MovieFinderInterface finder;
+        public MovieFinderInterface finder;
 
         public void all() {
             finder.findAll();
@@ -65,8 +65,8 @@
     class Main {
         public static void main (String[] args) {
             Container container = configureContainer();
-            MovieListener listener = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
-            listener.all()
+            MovieListener lister = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
+            lister.all()
         }
     }
     class MovieListerInjectClassDependency {
@@ -111,10 +111,10 @@
     class Main {
         public static void main (String[] args) {
             Container container = configureContainer();
-            MovieListener listener1 = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
-            MovieListener listener2 = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
-            listener1.all();
-            listener2.all();
+            MovieListener lister1 = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
+            MovieListener lister2 = (MovieListener) container.getComponent(MovieListerInjectClassDependency.class);
+            lister1.all();
+            lister2.all();
             //验证lister1.finder.hashCode() == lister2.finder.hashCode()
         }
     }

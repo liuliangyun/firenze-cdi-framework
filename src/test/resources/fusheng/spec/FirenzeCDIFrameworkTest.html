@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firenze CDI framework</title>
+</head>
+<body>
+<h2>概述</h2>
+<div>Firenze CDI framework是一个简易版本的依赖注入框架，提供一个容器帮助管理所有组件，并提供了一系列注解使得容器在获得组件实例时能自动注入所需的依赖。</div>
+
+<h2>详细介绍</h2>
+<h3>一、基本概念</h3>
+<div>1. 容器：容器就是一个组件管理器，我们可以向容器注册组件关系（如接口和实现类），获得指定的组件实例。</div>
+<div>2. 组件：组件和对象概念相似，可以理解为组件是复杂的对象，是若干对象的组合。</div>
+<div>3. 依赖注入：依赖注入是一种技术，帮助一个组件接收它的依赖对象，常用的依赖注入方法有：构造器依赖注入、setter方法依赖注入、注解声明的依赖注入等。</div>
+<ul>
+    <li>
+        构造器依赖注入指的是在组件的构造方法中声明对其他组件的依赖关系，即组件的构造方法的参数为所依赖的组件。如下所示：
+        <pre>
+            public class MovieLister {
+                MovieFinder finder;
+
+                public MovieLister(MovieFinder finder){
+                    this.finder = finder;
+                }
+            }
+        </pre>
+    </li>
+    <li>
+        setter方法依赖注入指的是在setter方法中声明对其他组件的依赖关系。如下所示：
+        <pre>
+            public class MovieLister {
+                private MovieFinder finder;
+
+                public MovieFinder getFinder() {
+                    return finder;
+                }
+
+                public void setFinder(MovieFinder finder) {
+                    this.finder = finder;
+                }
+            }
+        </pre>
+    </li>
+    <li>
+        注解声明的依赖注入指的是通过在依赖对象前放置注解的形式告诉容器，这里需要一个依赖项，请容器注入。如下所示：
+        <pre>
+            public class MovieLister {
+                @Inject
+                MovieFinder finder;
+            }
+        </pre>
+    </li>
+</ul>
+<div style="color: red">PS：对于注解声明的依赖注入，注解可以放置在属性上、构造器方法上等，本框架目前仅支持注解声明的依赖注入，且只支持放置在属性上。</div>
+
+<h3>二、使用说明</h3>
+<div>
+    <div>
+        <h4>1. Firenze CDI Framework将会提供一个容器FirenzeContainer用于管理组件, 通过调用getComponent方法可获取指定的组件实例。</h4>
+        <p class="example">
+            比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类<span class="variable" data-name="dependency">没有依赖</span>，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="true" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例成功
+            </span>。
+        </p>
+    </div>
+
+    <div>
+        <h4>2. 当组件之间存在依赖关系时，框架提供了@Inject注解，将其标识在属性上，在获取组件实例时容器会帮助组件自动注入依赖对象。</h4>
+        <p class="example">
+            比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类依赖于<span class="variable" data-name="dependency">class</span> MovieFinder，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="true" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例成功，并已经注入MovieFinder对象
+            </span>。
+        </p>
+    </div>
+
+    <div>
+        <h4>3. 容器通过registerImplementation方法注册接口实现类，当组件依赖于一个接口时，我们必须提前将接口实现类注册到容器中管理，后续才能正确获取到组件实例，否则会抛错。</h4>
+        <p class="example">
+            比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类依赖于<span class="variable" data-name="dependency">interface</span> MovieFinder，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="false" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例失败，抛出InterfaceInjectException error
+            </span>。
+        </p>
+
+        <p class="example">
+            再比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类依赖于<span class="variable" data-name="dependency">interface</span> MovieFinder，
+            MovieFinder有且仅有一个实现类ColonDelimitedMovieFinder，先调用registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class)
+            向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">ColonDelimitedMovieFinder</span>
+            </span>，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="true" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例成功，并已经注入ColonDelimitedMovieFinder对象
+            </span>。
+        </p>
+    </div>
+
+    <div>
+        <h4>
+            4. 当一个接口有多个实现类时，这时候仅仅通过@Inject注入接口，框架将无法得知具体注入哪一个实现类，@Named注解可以帮助我们解决这个问题。
+            @Named使用分为两步：首先，将@Named注解标识在实现类上，给实现类定义别名；然后，将@Named注解标识在需要依赖注入的属性上，即可实现通过别名注入指定的实现类。
+            如果框架注入依赖时找不到@Named指定的实现类，则会抛错。
+        </h4>
+        <p class="example">
+            比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类依赖于<span class="variable" data-name="dependency">interface</span> MovieFinder，
+            MovieFinder有两个实现类ColonDelimitedMovieFinder和DatabaseMovieFinder，依次调用
+            registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class)向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">ColonDelimitedMovieFinder</span>
+            </span>，和registerImplementation(MovieFinder.class, DatabaseMovieFinder.class)向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">DatabaseMovieFinder</span>
+            </span>，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="false" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例失败，抛出InterfaceInjectException error
+            </span>。
+        </p>
+
+        <p class="example">
+            再比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类依赖于<span class="variable" data-name="dependency">@Named('data') interface</span> MovieFinder，
+            @Named值为data，告知框架需要注入名为data的接口实现类，
+            MovieFinder有两个实现类ColonDelimitedMovieFinder和DatabaseMovieFinder，其中DatabaseMovieFinder类使用了@Named定义别名为database,
+            依次调用registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class)向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">ColonDelimitedMovieFinder</span>
+            </span>，和registerImplementation(MovieFinder.class, DatabaseMovieFinder.class)向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">DatabaseMovieFinder</span>
+            </span>，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="false" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例失败，抛出InterfaceInjectException error
+            </span>。
+        </p>
+
+        <p class="example">
+            又比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieLister类依赖于<span class="variable" data-name="dependency">@Named('database') interface</span> MovieFinder，
+            @Named值为database，告知框架需要注入名为database的接口实现类，
+            MovieFinder有两个实现类ColonDelimitedMovieFinder和DatabaseMovieFinder，其中DatabaseMovieFinder类使用了@Named定义别名为database,
+            依次调用registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class)向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">ColonDelimitedMovieFinder</span>
+            </span>，和registerImplementation(MovieFinder.class, DatabaseMovieFinder.class)向容器
+            <span class="function" data-action="registerImplementation" data-params="implementation">
+                注册接口实现类<span class="variable" data-name="implementation">DatabaseMovieFinder</span>
+            </span>，
+            当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
+            <span class="assertion" data-expect="true" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieLister组件实例成功，并已经注入DatabaseMovieFinder对象
+            </span>。
+        </p>
+    </div>
+
+    <div>
+        <h4>5. 有一种特殊情况是循环依赖，即组件A依赖于组件B，组件B又依赖于组件A，此时不论是向容器索要A组件还是B组件，框架都会抛错。</h4>
+        <p class="example">
+            比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            有一个MovieListerA类和MovieListerB类<span class="variable" data-name="dependency">相互依赖</span>，
+            当我们调用getComponent(MovieListerA.class)向容器索要MovieListerA组件， 那么将
+            <span class="assertion" data-expect="false" data-action="isSuccessGetComponent" data-params="dependency">
+                获取MovieListerA组件实例失败，抛出CircularDependencyException error
+            </span>。
+        </p>
+    </div>
+
+    <div>
+        <h4>6. 框架还提供了另一个注解@Singleton，将其标识在实现类上，表示这是一个单例对象，在当前应用中只会存在一个实例。</h4>
+        <p class="example">
+            比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
+            MovieLister是一个被@Singleton标记的class，
+            当我们调用一次<span class="function" data-action="getComponentForClassWithoutDependency" data-return="component1">getComponent(MovieLister.class)</span>
+            向容器索要MovieLister组件，
+            再调用一次<span class="function" data-action="getComponentForClassWithoutDependency" data-return="component2">getComponent(MovieLister.class)</span>
+            向容器索要MovieLister组件，
+            将得到<span class="assertion" data-action="isSameComponent" data-params="component1 component2" data-expect="true">同一个</span>MovieLister实例。
+        </p>
+    </div>
+</div>
+</body>
+</html>
