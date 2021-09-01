@@ -11,7 +11,7 @@ public class MovieListerInjectClassDependency {
     public MovieFinderClass finder;
 
     public List<Movie> moviesDirectedBy(String director){
-        List movies = new ArrayList<Movie>();
+        List<Movie> movies = new ArrayList<>();
         List<Movie> allMovies = finder.findAll();
         for(Movie movie:allMovies)
             if(movie.getDirector().equalsIgnoreCase(director))

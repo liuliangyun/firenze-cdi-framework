@@ -66,6 +66,24 @@
                 获取MovieLister组件实例成功
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+
+                // success call moviesDirectedBy method
+                List< Movie > movies = lister.moviesDirectedBy("zhang yi mou");
+            }
+        </pre>
     </div>
 
     <div>
@@ -78,6 +96,38 @@
                 获取MovieLister组件实例成功，并已经注入MovieFinder对象
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                @Inject
+                public MovieFinder finder;
+
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    List< Movie > allMovies = finder.findAll();
+                    for(Movie movie:allMovies)
+                        if(movie.getDirector().equalsIgnoreCase(director))
+                            movies.add(movie);
+                    return movies;
+                }
+            }
+
+            public class MovieFinder {
+                public List< Movie > findAll(){
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+
+                // success call moviesDirectedBy method
+                List< Movie > movies = lister.moviesDirectedBy("zhang yi mou");
+            }
+        </pre>
     </div>
 
     <div>
@@ -85,11 +135,47 @@
         <p class="example">
             比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
             有一个MovieLister类依赖于<span class="variable" data-name="dependency">interface</span> MovieFinder，
+            MovieFinder有且仅有一个实现类ColonDelimitedMovieFinder，但未向容器注册，
             当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
             <span class="assertion" data-expect="false" data-action="isSuccessGetComponent" data-params="dependency">
                 获取MovieLister组件实例失败，抛出InterfaceInjectException error
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                @Inject
+                public MovieFinder finder;
+
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    List< Movie > allMovies = finder.findAll();
+                    for(Movie movie:allMovies)
+                        if(movie.getDirector().equalsIgnoreCase(director))
+                            movies.add(movie);
+                    return movies;
+                }
+            }
+
+            public interface MovieFinder {
+                List< Movie > findAll();
+            }
+
+            public class ColonDelimitedMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+
+                // throw InterfaceInjectException error
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+            }
+        </pre>
 
         <p class="example">
             再比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
@@ -104,6 +190,44 @@
                 获取MovieLister组件实例成功，并已经注入ColonDelimitedMovieFinder对象
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                @Inject
+                public MovieFinder finder;
+
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    List< Movie > allMovies = finder.findAll();
+                    for(Movie movie:allMovies)
+                        if(movie.getDirector().equalsIgnoreCase(director))
+                            movies.add(movie);
+                    return movies;
+                }
+            }
+
+            public interface MovieFinder {
+                List< Movie > findAll();
+            }
+
+            public class ColonDelimitedMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+                container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class);
+
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+
+                // success call moviesDirectedBy method
+                List< Movie > movies = lister.moviesDirectedBy("zhang yi mou");
+            }
+        </pre>
     </div>
 
     <div>
@@ -128,6 +252,52 @@
                 获取MovieLister组件实例失败，抛出InterfaceInjectException error
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                @Inject
+                public MovieFinder finder;
+
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    List< Movie > allMovies = finder.findAll();
+                    for(Movie movie:allMovies)
+                        if(movie.getDirector().equalsIgnoreCase(director))
+                            movies.add(movie);
+                    return movies;
+                }
+            }
+
+            public interface MovieFinder {
+                List< Movie > findAll();
+            }
+
+            public class ColonDelimitedMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public class DatabaseMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+                container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class);
+                container.registerImplementation(MovieFinder.class, DatabaseMovieFinder.class);
+
+                // throw InterfaceInjectException error
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+            }
+        </pre>
 
         <p class="example">
             再比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
@@ -141,11 +311,61 @@
             <span class="function" data-action="registerImplementation" data-params="implementation">
                 注册接口实现类<span class="variable" data-name="implementation">DatabaseMovieFinder</span>
             </span>，
+            发现实际并不存在名为data的实现类，
             当我们调用getComponent(MovieLister.class)向容器索要MovieLister组件， 那么将
             <span class="assertion" data-expect="false" data-action="isSuccessGetComponent" data-params="dependency">
                 获取MovieLister组件实例失败，抛出InterfaceInjectException error
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                @Inject
+                @Named("data")
+                public MovieFinder finder;
+
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    List< Movie > allMovies = finder.findAll();
+                    for(Movie movie:allMovies)
+                        if(movie.getDirector().equalsIgnoreCase(director))
+                            movies.add(movie);
+                    return movies;
+                }
+            }
+
+            public interface MovieFinder {
+                List< Movie > findAll();
+            }
+
+            @Named("colon")
+            public class ColonDelimitedMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            @Named("database")
+            public class DatabaseMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+                container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class);
+                container.registerImplementation(MovieFinder.class, DatabaseMovieFinder.class);
+
+                // throw InterfaceInjectException error
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+            }
+        </pre>
 
         <p class="example">
             又比如：<span class="function" data-action="newContainer">创建容器</span>FirenzeContainer，
@@ -164,6 +384,57 @@
                 获取MovieLister组件实例成功，并已经注入DatabaseMovieFinder对象
             </span>。
         </p>
+        <pre>
+            public class MovieLister {
+                @Inject
+                @Named("database")
+                public MovieFinder finder;
+
+                public List< Movie > moviesDirectedBy(String director){
+                    List< Movie > movies = new ArrayList<>();
+                    List< Movie > allMovies = finder.findAll();
+                    for(Movie movie:allMovies)
+                        if(movie.getDirector().equalsIgnoreCase(director))
+                            movies.add(movie);
+                    return movies;
+                }
+            }
+
+            public interface MovieFinder {
+                List< Movie > findAll();
+            }
+
+            @Named("colon")
+            public class ColonDelimitedMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            @Named("database")
+            public class DatabaseMovieFinder implements MovieFinder {
+                @Override
+                public List< Movie > findAll() {
+                    List< Movie > movies = new ArrayList<>();
+                    ...
+                    return movies;
+                }
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+                container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class);
+                container.registerImplementation(MovieFinder.class, DatabaseMovieFinder.class);
+
+                MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);
+
+                // success call moviesDirectedBy method
+                List< Movie > movies = lister.moviesDirectedBy("zhang yi mou");
+            }
+        </pre>
     </div>
 
     <div>
@@ -176,6 +447,24 @@
                 获取MovieListerA组件实例失败，抛出CircularDependencyException error
             </span>。
         </p>
+        <pre>
+            public class MovieListerAInjectB {
+                @Inject
+                public MovieListerBInjectA listerB;
+            }
+
+            public class MovieListerBInjectA {
+                @Inject
+                public MovieListerAInjectB listerA;
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+
+                // throw CircularDependencyException error
+                container.getComponent(MovieListerAInjectB.class);
+            }
+        </pre>
     </div>
 
     <div>
@@ -189,6 +478,21 @@
             向容器索要MovieLister组件，
             将得到<span class="assertion" data-action="isSameComponent" data-params="component1 component2" data-expect="true">同一个</span>MovieLister实例。
         </p>
+        <pre>
+            @Singleton
+            public class MovieLister {
+            }
+
+            public static void main(String[] args) {
+                Container container = new FirenzeContainer();
+
+                MovieLister lister1 = (MovieLister) container.getComponent(MovieLister.class);
+                MovieLister lister2 = (MovieLister) container.getComponent(MovieLister.class);
+
+                // print true, lister1, lister2 is same
+                System.out.println(lister1.hashCode() == lister2.hashCode());
+            }
+        </pre>
     </div>
 </div>
 </body>

@@ -10,7 +10,7 @@ import java.util.List;
 @Singleton
 public class MovieListerWithoutDependency {
     public List<Movie> moviesDirectedBy(String director){
-        List movies = new ArrayList<Movie>();
+        List<Movie> movies = new ArrayList<>();
         List<Movie> allMovies = Arrays.asList(
                 new Movie("zhang yi mou", "红高粱"),
                 new Movie("chen kai ge", "梅兰芳")
