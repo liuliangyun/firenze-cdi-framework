@@ -10,7 +10,7 @@ import java.util.List;
 public class MovieListerInjectNamedInterfaceDependency {
     @Inject
     @Named("database")
-    public MovieFinderInterface finder;
+    private MovieFinderInterface finder;
 
     public List<Movie> moviesDirectedBy(String director){
         List movies = new ArrayList<Movie>();
@@ -20,5 +20,9 @@ public class MovieListerInjectNamedInterfaceDependency {
                 movies.add(movie);
 
         return movies;
+    }
+
+    public MovieFinderInterface getFinder() {
+        return finder;
     }
 }

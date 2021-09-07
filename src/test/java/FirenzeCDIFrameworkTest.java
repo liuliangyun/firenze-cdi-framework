@@ -49,13 +49,13 @@ public class FirenzeCDIFrameworkTest {
 
     public String getInjectedFinderClassName (Object lister, String dependency) {
         if ("依赖类".equals(dependency)) {
-            Object finder = ((MovieListerInjectClassDependency) lister).finder;
+            Object finder = ((MovieListerInjectClassDependency) lister).getFinder();
             return isNull(finder) ? "" : finder.getClass().getSimpleName();
         } else if ("依赖接口".equals(dependency)) {
-            Object finder = ((MovieListerInjectInterfaceDependency) lister).finder;
+            Object finder = ((MovieListerInjectInterfaceDependency) lister).getFinder();
             return isNull(finder) ? "" : finder.getClass().getSimpleName();
         } else if ("依赖@Named标识的接口".equals(dependency)) {
-            Object finder = ((MovieListerInjectNamedInterfaceDependency) lister).finder;
+            Object finder = ((MovieListerInjectNamedInterfaceDependency) lister).getFinder();
             return isNull(finder) ? "" : finder.getClass().getSimpleName();
         }
         return "";

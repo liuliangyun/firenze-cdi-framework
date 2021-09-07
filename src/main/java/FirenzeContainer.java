@@ -70,6 +70,7 @@ public class FirenzeContainer implements Container{
                 String namedValue = getFieldNamedValue(field);
                 Object arg = getComponentForField(clazz, namedValue);
                 try {
+                    field.setAccessible(true);
                     field.set(comp, arg);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

@@ -4,6 +4,6 @@ import annotations.Inject;
 
 public class MovieListerB {
     @Inject
-    public MovieListerA listerA;
+    private MovieListerA listerA;
 
 }

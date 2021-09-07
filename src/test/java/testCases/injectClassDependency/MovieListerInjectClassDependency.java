@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MovieListerInjectClassDependency {
     @Inject
-    public MovieFinder finder;
+    private MovieFinder finder;
 
     public List<Movie> moviesDirectedBy(String director){
         List<Movie> movies = new ArrayList<>();
@@ -18,5 +18,9 @@ public class MovieListerInjectClassDependency {
                 movies.add(movie);
 
         return movies;
+    }
+
+    public MovieFinder getFinder() {
+        return finder;
     }
 }
