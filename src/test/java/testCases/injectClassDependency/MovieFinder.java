@@ -5,7 +5,7 @@ import testCases.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieFinderClass {
+public class MovieFinder {
     public List<Movie> findAll() {
         List<Movie> movies = new ArrayList<>();
 

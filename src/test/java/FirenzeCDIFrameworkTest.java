@@ -1,11 +1,12 @@
 import com.thoughtworks.fusheng.integration.junit5.FuShengTest;
-import testCases.circularDependency.MovieListerAInjectB;
+import testCases.circularDependency.MovieListerA;
 import testCases.injectClassDependency.MovieListerInjectClassDependency;
 import testCases.injectInterfaceDependency.*;
+import testCases.singleton.MovieListerWithoutSingleton;
+import testCases.singleton.MovieListerWithSingleton;
 import testCases.withoutDependency.MovieListerWithoutDependency;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 
@@ -21,31 +22,43 @@ public class FirenzeCDIFrameworkTest {
         container = new FirenzeContainer();
     }
 
-    public void registerImplementation (String implementation) {
-        container.registerImplementation(MovieFinderInterface.class, implementationMap.get(implementation));
+    public void registerImplementation (String implementations) {
+        String[] array = implementations.split("和");
+        Arrays.stream(array).forEach(impl -> container.registerImplementation(MovieFinderInterface.class, implementationMap.get(impl)));
     }
 
-    public boolean isSuccessGetComponent (String dependency) {
+    public Object getComponentForDependency (String dependency) {
+        Object lister = null;
         if ("没有依赖".equals(dependency)) {
-            MovieListerWithoutDependency lister = getComponentWithoutDependency();
-            return !isNull(lister);
-        } else if ("class".equals(dependency)){
-            MovieListerInjectClassDependency lister = getComponentForInjectClass();
-            return !isNull(lister) && !isNull(lister.finder);
-        } else if ("interface".equals(dependency)) {
-            MovieListerInjectInterfaceDependency lister = getComponentForInjectInterface();
-            return !isNull(lister) && !isNull(lister.finder);
-        } else if ("@Named(\'data\') interface".equals(dependency)) {
-            MovieListerInjectNotExistedNamedInterfaceDependency lister = getComponentForInjectInterfaceWithNotExistedName();
-            return !isNull(lister) && !isNull(lister.finder);
-        } else if ("@Named(\'database\') interface".equals(dependency)) {
-            MovieListerInjectNamedInterfaceDependency lister = getComponentForInjectInterfaceWithExistedName();
-            return !isNull(lister) && !isNull(lister.finder);
+            lister = getComponent(MovieListerWithoutDependency.class);
+        } else if ("依赖类".equals(dependency)){
+            lister = getComponent(MovieListerInjectClassDependency.class);
+        } else if ("依赖接口".equals(dependency)) {
+            lister = getComponent(MovieListerInjectInterfaceDependency.class);
+        } else if ("依赖@Named标识的接口".equals(dependency)) {
+            lister = getComponent(MovieListerInjectNamedInterfaceDependency.class);
         } else if ("相互依赖".equals(dependency)) {
-            MovieListerAInjectB lister = getComponentForInjectCircular();
-            return !isNull(lister);
+            lister = getComponent(MovieListerA.class);
         }
-        return false;
+        return lister;
+    }
+
+    public String isGetListerSuccess (Object lister) {
+        return !isNull(lister) ? "成功" : "失败";
+    }
+
+    public String getInjectedFinderClassName (Object lister, String dependency) {
+        if ("依赖类".equals(dependency)) {
+            Object finder = ((MovieListerInjectClassDependency) lister).finder;
+            return isNull(finder) ? "" : finder.getClass().getSimpleName();
+        } else if ("依赖接口".equals(dependency)) {
+            Object finder = ((MovieListerInjectInterfaceDependency) lister).finder;
+            return isNull(finder) ? "" : finder.getClass().getSimpleName();
+        } else if ("依赖@Named标识的接口".equals(dependency)) {
+            Object finder = ((MovieListerInjectNamedInterfaceDependency) lister).finder;
+            return isNull(finder) ? "" : finder.getClass().getSimpleName();
+        }
+        return "";
     }
 
     public Object getComponent (Class clazz) {
@@ -58,32 +71,23 @@ public class FirenzeCDIFrameworkTest {
         return lister;
     }
 
-    public MovieListerWithoutDependency getComponentWithoutDependency () {
-        return (MovieListerWithoutDependency) getComponent(MovieListerWithoutDependency.class);
+    public List<Object> getComponentSeveralTimes (String isSingleton, String times) {
+        int count = Integer.parseInt(times);
+        List<Object> objects = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            if (isSingleton == "是") {
+                objects.add(getComponent(MovieListerWithSingleton.class));
+            } else {
+                objects.add(getComponent(MovieListerWithoutSingleton.class));
+            }
+        }
+        return objects;
     }
 
-    public MovieListerInjectClassDependency getComponentForInjectClass () {
-        return (MovieListerInjectClassDependency) getComponent(MovieListerInjectClassDependency.class);
-    }
-
-    public MovieListerInjectInterfaceDependency getComponentForInjectInterface () {
-        return (MovieListerInjectInterfaceDependency) getComponent(MovieListerInjectInterfaceDependency.class);
-    }
-
-    public MovieListerInjectNotExistedNamedInterfaceDependency getComponentForInjectInterfaceWithNotExistedName () {
-        return (MovieListerInjectNotExistedNamedInterfaceDependency) getComponent(MovieListerInjectNotExistedNamedInterfaceDependency.class);
-    }
-
-    public MovieListerInjectNamedInterfaceDependency getComponentForInjectInterfaceWithExistedName () {
-        return (MovieListerInjectNamedInterfaceDependency) getComponent(MovieListerInjectNamedInterfaceDependency.class);
-    }
-
-    public MovieListerAInjectB getComponentForInjectCircular () {
-        return (MovieListerAInjectB) getComponent(MovieListerAInjectB.class);
-    }
-
-    public boolean isSameComponent (Object component1, Object component2) {
-        return !isNull(component1) && !isNull(component2) && component1.hashCode() == component2.hashCode();
+    public String isSameComponent (List<Object> components) {
+        int code = components.get(0).hashCode();
+        boolean result = components.stream().allMatch(component -> component.hashCode() == code);
+        return result ? "相同" : "不同";
     }
 
 }

@@ -1,4 +1,4 @@
-package testCases.withoutDependency;
+package testCases.singleton;
 
 import testCases.Movie;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MovieListerWithoutDependency {
+public class MovieListerWithoutSingleton {
     public List<Movie> moviesDirectedBy(String director){
         List<Movie> movies = new ArrayList<>();
         List<Movie> allMovies = Arrays.asList(

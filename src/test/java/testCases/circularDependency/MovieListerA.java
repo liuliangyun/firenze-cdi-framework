@@ -2,8 +2,8 @@ package testCases.circularDependency;
 
 import annotations.Inject;
 
-public class MovieListerAInjectB {
+public class MovieListerA {
     @Inject
-    public MovieListerBInjectA listerB;
+    public MovieListerB listerB;
 
 }

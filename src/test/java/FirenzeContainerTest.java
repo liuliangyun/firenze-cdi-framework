@@ -2,13 +2,14 @@ import exceptions.CircularDependencyException;
 import exceptions.InterfaceInjectException;
 import org.junit.jupiter.api.Test;
 import testCases.Movie;
-import testCases.circularDependency.MovieListerAInjectB;
+import testCases.circularDependency.MovieListerA;
 import testCases.injectClassDependency.MovieListerInjectClassDependency;
 import testCases.injectInterfaceDependency.ColonDelimitedMovieFinder;
 import testCases.injectInterfaceDependency.DatabaseMovieFinder;
 import testCases.injectInterfaceDependency.MovieFinderInterface;
 import testCases.injectInterfaceDependency.MovieListerInjectInterfaceDependency;
 import testCases.injectInterfaceDependency.MovieListerInjectNamedInterfaceDependency;
+import testCases.singleton.MovieListerWithSingleton;
 import testCases.withoutDependency.MovieListerWithoutDependency;
 
 import java.util.Arrays;
@@ -135,7 +136,7 @@ public class FirenzeContainerTest {
 
         // when get component a which inject component b, but b is depend on a
         assertThrows(CircularDependencyException.class, () -> {
-            container.getComponent(MovieListerAInjectB.class);
+            container.getComponent(MovieListerA.class);
         });
     }
 
@@ -145,8 +146,8 @@ public class FirenzeContainerTest {
         Container container = new FirenzeContainer();
 
         // when get component annotated with singleton twice
-        MovieListerWithoutDependency lister1 = (MovieListerWithoutDependency) container.getComponent(MovieListerWithoutDependency.class);
-        MovieListerWithoutDependency lister2 = (MovieListerWithoutDependency) container.getComponent(MovieListerWithoutDependency.class);
+        MovieListerWithSingleton lister1 = (MovieListerWithSingleton) container.getComponent(MovieListerWithSingleton.class);
+        MovieListerWithSingleton lister2 = (MovieListerWithSingleton) container.getComponent(MovieListerWithSingleton.class);
 
         // lister1 and lister2 is the same instance
         assertEquals(lister1.hashCode(), lister2.hashCode());
