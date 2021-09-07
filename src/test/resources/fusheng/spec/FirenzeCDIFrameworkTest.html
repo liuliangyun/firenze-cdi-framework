@@ -18,7 +18,7 @@
         container.getComponent(MovieLister.class); <span style="color: green">// 获得组件实例，等价于 new MovieLister()</span>
     </pre>
     <p>另外，我们还可以通过API向容器注册接口和实现类的对应关系，方便容器处理具有复杂依赖关系的类和接口的情况。</p>
-    <img src="../imgs/interface_implementation.png" width="600px" height="300px" />
+    <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/interface_implementation.png" width="600px" height="300px" /><br/>
     <div style="color: burlywood">注：黄色圆圈表示接口，四边形表示class。虚线表示接口-实现关系，实线表示依赖关系。</div>
     <pre>
       Example:<br/>
@@ -95,7 +95,7 @@
         <h4>2. 当组件之间存在依赖关系时，框架提供了@Inject注解，将其标识在属性上，在获取组件实例时容器会帮助组件自动注入依赖对象到被@Inject注解标识的属性上。</h4>
         <p class="example">
             Example：<br/>
-            <img src="../imgs/inject_class.png" width="500px" height="200px" /><br/>
+            <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/inject_class.png" width="500px" height="200px" /><br/>
             <span class="function" data-action="newContainer">容器</span>中MovieLister
             <span class="variable" data-name="dependency">依赖类</span>MovieFinder，
             <span class="function" data-action="getComponentForDependency" data-params="dependency" data-return="lister">
@@ -126,7 +126,7 @@
         <h4>3. 前面介绍的是依赖项为普通类的情况，当组件依赖项是一个接口时，我们必须提前调用registerImplementation API将接口实现类关系注册到容器中，后续依赖注入时才能正确注入指定的实现类，否则系统会抛错提示。</h4>
         <p class="example">
             Example：<br/>
-            <img src="../imgs/inject_interface_with_impl.png" width="400px" height="400px" /><br/>
+            <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/inject_interface_with_impl.png" width="400px" height="400px" /><br/>
             <span class="function" data-action="newContainer">容器</span>中MovieLister
             <span class="variable" data-name="dependency">依赖接口</span>MovieFinder，
             通过registerImplementation API向容器
@@ -171,7 +171,7 @@
         </h4>
         <p class="example">
             Example：<br/>
-            <img src="../imgs/inject_interface_with_multi_impl.png" width="600px" height="300px" /><br/>
+            <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/inject_interface_with_multi_impl.png" width="600px" height="300px" /><br/>
             <span class="function" data-action="newContainer">容器</span>中MovieLister
             <span class="variable" data-name="dependency">依赖@Named标识的接口</span>MovieFinder，@Named value为"database"，
             依次通过registerImplementation API向容器
@@ -217,7 +217,7 @@
         <h4>5. 有一种特殊情况是循环依赖，即组件A依赖于组件B，组件B又依赖于组件A，此时不论是向容器索要A组件还是B组件，框架都会抛错。</h4>
         <p class="example">
             Example：<br/>
-            <img src="../imgs/circular_dependency.png" width="500px" height="300px" /><br/>
+            <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/circular_dependency.png" width="500px" height="300px" /><br/>
             <span class="function" data-action="newContainer">容器</span>中MovieListerA和MovieListerB之间
             <span class="variable" data-name="dependency">相互依赖</span>，
             <span class="function" data-action="getComponentForDependency" data-params="dependency" data-return="lister">
