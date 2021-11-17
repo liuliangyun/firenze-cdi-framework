@@ -1,4 +1,4 @@
-package testCases.injectInterfaceDependency;
+package testCases.injectInterfaceWithMultiImpl;
 
 import annotations.Named;
 import testCases.Movie;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Named("database")
-public class DatabaseMovieFinder implements MovieFinderInterface {
+public class MovieFinderImpl2 implements MovieFinderInterfaceWithMultiImpl {
     @Override
     public List<Movie> findAll() {
         List<Movie> movies = new ArrayList<>();

@@ -1,4 +1,4 @@
-package testCases.injectClassDependency;
+package testCases.injectInterfaceWithoutImpl;
 
 import annotations.Inject;
 import testCases.Movie;
@@ -6,12 +6,12 @@ import testCases.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieListerInjectClassDependency {
+public class MovieListerInjectInterfaceWithoutImpl {
     @Inject
-    private MovieFinder finder;
+    private MovieFinderInterfaceWithoutImpl finder;
 
     public List<Movie> moviesDirectedBy(String director){
-        List<Movie> movies = new ArrayList<>();
+        List movies = new ArrayList<Movie>();
         List<Movie> allMovies = finder.findAll();
         for(Movie movie:allMovies)
             if(movie.getDirector().equalsIgnoreCase(director))
@@ -20,7 +20,7 @@ public class MovieListerInjectClassDependency {
         return movies;
     }
 
-    public MovieFinder getFinder() {
+    public MovieFinderInterfaceWithoutImpl getFinder() {
         return finder;
     }
 }

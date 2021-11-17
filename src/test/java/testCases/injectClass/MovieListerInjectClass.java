@@ -1,19 +1,17 @@
-package testCases.injectInterfaceDependency;
+package testCases.injectClass;
 
 import annotations.Inject;
-import annotations.Named;
 import testCases.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieListerInjectNamedInterfaceDependency {
+public class MovieListerInjectClass {
     @Inject
-    @Named("database")
-    private MovieFinderInterface finder;
+    private MovieFinder finder;
 
     public List<Movie> moviesDirectedBy(String director){
-        List movies = new ArrayList<Movie>();
+        List<Movie> movies = new ArrayList<>();
         List<Movie> allMovies = finder.findAll();
         for(Movie movie:allMovies)
             if(movie.getDirector().equalsIgnoreCase(director))
@@ -22,7 +20,7 @@ public class MovieListerInjectNamedInterfaceDependency {
         return movies;
     }
 
-    public MovieFinderInterface getFinder() {
+    public MovieFinder getFinder() {
         return finder;
     }
 }

@@ -1,7 +1,8 @@
 import com.thoughtworks.fusheng.integration.junit5.FuShengTest;
 import testCases.circularDependency.MovieListerA;
-import testCases.injectClassDependency.MovieListerInjectClassDependency;
-import testCases.injectInterfaceDependency.*;
+import testCases.injectClass.MovieListerInjectClass;
+import testCases.injectInterfaceWithMultiImpl.*;
+import testCases.injectInterfaceWithOneImpl.MovieListerInjectInterfaceWithOneImpl;
 import testCases.singleton.MovieListerWithoutSingleton;
 import testCases.singleton.MovieListerWithSingleton;
 import testCases.withoutDependency.MovieListerWithoutDependency;
@@ -13,18 +14,9 @@ import static java.util.Objects.isNull;
 @FuShengTest
 public class FirenzeCDIFrameworkTest {
     private Container container;
-    private Map<String, Class> implementationMap = new HashMap<>(){{
-        put("ColonDelimitedMovieFinder", ColonDelimitedMovieFinder.class);
-        put("DatabaseMovieFinder", DatabaseMovieFinder.class);
-    }};
 
     public void newContainer () {
         container = new FirenzeContainer();
-    }
-
-    public void registerImplementation (String implementations) {
-        String[] array = implementations.split("和");
-        Arrays.stream(array).forEach(impl -> container.registerImplementation(MovieFinderInterface.class, implementationMap.get(impl)));
     }
 
     public Object getComponentForDependency (String dependency) {
@@ -32,11 +24,11 @@ public class FirenzeCDIFrameworkTest {
         if ("没有依赖".equals(dependency)) {
             lister = getComponent(MovieListerWithoutDependency.class);
         } else if ("依赖类".equals(dependency)){
-            lister = getComponent(MovieListerInjectClassDependency.class);
-        } else if ("依赖接口".equals(dependency)) {
-            lister = getComponent(MovieListerInjectInterfaceDependency.class);
-        } else if ("依赖@Named标识的接口".equals(dependency)) {
-            lister = getComponent(MovieListerInjectNamedInterfaceDependency.class);
+            lister = getComponent(MovieListerInjectClass.class);
+        } else if ("依赖接口（只有一个实现类）".equals(dependency)) {
+            lister = getComponent(MovieListerInjectInterfaceWithOneImpl.class);
+        } else if ("依赖@Named标识的接口（有多个实现类）".equals(dependency)) {
+            lister = getComponent(MovieListerInjectNamedInterfaceWithMultiImpl.class);
         } else if ("相互依赖".equals(dependency)) {
             lister = getComponent(MovieListerA.class);
         }
@@ -48,17 +40,15 @@ public class FirenzeCDIFrameworkTest {
     }
 
     public String getInjectedFinderClassName (Object lister, String dependency) {
+        Object finder = null;
         if ("依赖类".equals(dependency)) {
-            Object finder = ((MovieListerInjectClassDependency) lister).getFinder();
-            return isNull(finder) ? "" : finder.getClass().getSimpleName();
-        } else if ("依赖接口".equals(dependency)) {
-            Object finder = ((MovieListerInjectInterfaceDependency) lister).getFinder();
-            return isNull(finder) ? "" : finder.getClass().getSimpleName();
-        } else if ("依赖@Named标识的接口".equals(dependency)) {
-            Object finder = ((MovieListerInjectNamedInterfaceDependency) lister).getFinder();
-            return isNull(finder) ? "" : finder.getClass().getSimpleName();
+            finder = ((MovieListerInjectClass) lister).getFinder();
+        } else if ("依赖接口（只有一个实现类）".equals(dependency)) {
+            finder = ((MovieListerInjectInterfaceWithOneImpl) lister).getFinder();
+        } else if ("依赖@Named标识的接口（有多个实现类）".equals(dependency)) {
+            finder = ((MovieListerInjectNamedInterfaceWithMultiImpl) lister).getFinder();
         }
-        return "";
+        return isNull(finder) ? "" : finder.getClass().getSimpleName();
     }
 
     public Object getComponent (Class clazz) {

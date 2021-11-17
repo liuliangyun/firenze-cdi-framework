@@ -1,4 +1,4 @@
-package testCases.injectInterfaceDependency;
+package testCases.injectInterfaceWithMultiImpl;
 
 import annotations.Inject;
 import annotations.Named;
@@ -7,10 +7,10 @@ import testCases.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieListerInjectNotExistedNamedInterfaceDependency {
+public class MovieListerInjectNamedInterfaceWithMultiImpl {
     @Inject
-    @Named("data")
-    private MovieFinderInterface finder;
+    @Named("database")
+    private MovieFinderInterfaceWithMultiImpl finder;
 
     public List<Movie> moviesDirectedBy(String director){
         List movies = new ArrayList<Movie>();
@@ -22,7 +22,7 @@ public class MovieListerInjectNotExistedNamedInterfaceDependency {
         return movies;
     }
 
-    public MovieFinderInterface getFinder() {
+    public MovieFinderInterfaceWithMultiImpl getFinder() {
         return finder;
     }
 }

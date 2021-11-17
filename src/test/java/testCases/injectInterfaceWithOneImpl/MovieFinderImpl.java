@@ -1,4 +1,4 @@
-package testCases.injectInterfaceDependency;
+package testCases.injectInterfaceWithOneImpl;
 
 import testCases.Movie;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ColonDelimitedMovieFinder implements MovieFinderInterface {
+public class MovieFinderImpl implements MovieFinderInterfaceWithOneImpl {
 
     @Override
     public List<Movie> findAll() {

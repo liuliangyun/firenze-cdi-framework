@@ -17,15 +17,6 @@
         Container container = new FirenzeContainer();
         container.getComponent(MovieLister.class); <span style="color: green">// 获得组件实例，等价于 new MovieLister()</span>
     </pre>
-    <p>另外，我们还可以通过API向容器注册接口和实现类的对应关系，方便容器处理具有复杂依赖关系的类和接口的情况。</p>
-    <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/interface_implementation.png" width="600px" height="300px" /><br/>
-    <div style="color: burlywood">注：黄色圆圈表示接口，四边形表示class。虚线表示接口-实现关系，实线表示依赖关系。</div>
-    <pre>
-      Example:<br/>
-        Container container = new FirenzeContainer();
-        container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class); <span style="color: green">// 注册接口-实现类</span>
-        container.registerImplementation(MovieFinder.class, DatabaseMovieFinder.class); <span style="color: green">// 注册接口-实现类</span>
-    </pre>
 </div>
 
 <div>
@@ -123,24 +114,19 @@
     </div>
 
     <div>
-        <h4>3. 前面介绍的是依赖项为普通类的情况，当组件依赖项是一个接口时，我们必须提前调用registerImplementation API将接口实现类关系注册到容器中，后续依赖注入时才能正确注入指定的实现类，否则系统会抛错提示。</h4>
+        <h4>3. 前面介绍的是依赖项为普通类的情况，当组件依赖项是一个接口时，接口必须有至少一个实现类（注意：接口实现类和接口必须定义在同一层目录下），后续依赖注入时才能正确注入指定的实现类，否则系统会抛错提示。</h4>
         <p class="example">
             Example：<br/>
             <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/inject_interface_with_impl.png" width="400px" height="400px" /><br/>
             <span class="function" data-action="newContainer">容器</span>中MovieLister
-            <span class="variable" data-name="dependency">依赖接口</span>MovieFinder，
-            通过registerImplementation API向容器
-            <span class="function" data-action="registerImplementation" data-params="implementations">
-                注册MovieFinder的实现类
-                <span class="variable" data-name="implementations">ColonDelimitedMovieFinder</span>
-            </span>
+            <span class="variable" data-name="dependency">依赖接口（只有一个实现类）</span>MovieFinder，实现类MovieFinderImpl，
             <span class="function" data-action="getComponentForDependency" data-params="dependency" data-return="lister">
                 当我们调用getComponent API向容器索要MovieLister组件
             </span>，那么将获取MovieLister组件实例
             <span class="assertion" data-expect="equal" data-action="isGetListerSuccess" data-params="lister">成功</span>，
             MovieLister实例中注入了
             <span class="assertion" data-expect="equal" data-action="getInjectedFinderClassName" data-params="lister dependency">
-                ColonDelimitedMovieFinder
+                MovieFinderImpl
             </span>对象。
         </p>
         <pre>
@@ -151,11 +137,10 @@
 
             public interface MovieFinder {}
 
-            public class ColonDelimitedMovieFinder implements MovieFinder {}
+            public class MovieFinderImpl implements MovieFinder {}
 
             public static void main(String[] args) {
                 Container container = new FirenzeContainer();
-                container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class);
                 MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);<span style="color: green">// 获取组件实例成功</span>
             }
         </pre>
@@ -173,20 +158,16 @@
             Example：<br/>
             <img src="/firenze-cdi-framework/src/test/resources/fusheng/imgs/inject_interface_with_multi_impl.png" width="600px" height="300px" /><br/>
             <span class="function" data-action="newContainer">容器</span>中MovieLister
-            <span class="variable" data-name="dependency">依赖@Named标识的接口</span>MovieFinder，@Named value为"database"，
-            依次通过registerImplementation API向容器
-            <span class="function" data-action="registerImplementation" data-params="implementations">
-                注册MovieFinder的实现类
-                <span class="variable" data-name="implementations">ColonDelimitedMovieFinder和DatabaseMovieFinder</span>
-            </span>，
-            其中，ColonDelimitedMovieFinder类使用了@Named定义别名为"colon"，DatabaseMovieFinder类使用了@Named定义别名为"database"，
+            <span class="variable" data-name="dependency">依赖@Named标识的接口（有多个实现类）</span>MovieFinder，@Named value为"database"，
+            接口实现类为MovieFinderImpl1和MovieFinderImpl2，
+            其中，MovieFinderImpl1类使用了@Named定义别名为"colon"，MovieFinderImpl2类使用了@Named定义别名为"database"，
             <span class="function" data-action="getComponentForDependency" data-params="dependency" data-return="lister">
                  当我们调用getComponent API向容器索要MovieLister组件
             </span>，那么将获取MovieLister组件实例
             <span class="assertion" data-expect="equal" data-action="isGetListerSuccess" data-params="lister">成功</span>，
             MovieLister实例中注入了
             <span class="assertion" data-expect="equal" data-action="getInjectedFinderClassName" data-params="lister dependency">
-                DatabaseMovieFinder
+                MovieFinderImpl2
             </span>对象。
         </p>
         <pre>
@@ -199,15 +180,13 @@
             public interface MovieFinder {}
 
             @Named("colon")
-            public class ColonDelimitedMovieFinder implements MovieFinder {}
+            public class MovieFinderImpl1 implements MovieFinder {}
 
             @Named("database")
-            public class DatabaseMovieFinder implements MovieFinder {}
+            public class MovieFinderImpl2 implements MovieFinder {}
 
             public static void main(String[] args) {
                 Container container = new FirenzeContainer();
-                container.registerImplementation(MovieFinder.class, ColonDelimitedMovieFinder.class);
-                container.registerImplementation(MovieFinder.class, DatabaseMovieFinder.class);
                 MovieLister lister = (MovieLister) container.getComponent(MovieLister.class);<span style="color: green">// 获取组件实例成功</span>
             }
         </pre>

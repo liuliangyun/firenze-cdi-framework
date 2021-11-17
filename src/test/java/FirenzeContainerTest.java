@@ -3,12 +3,10 @@ import exceptions.InterfaceInjectException;
 import org.junit.jupiter.api.Test;
 import testCases.Movie;
 import testCases.circularDependency.MovieListerA;
-import testCases.injectClassDependency.MovieListerInjectClassDependency;
-import testCases.injectInterfaceDependency.ColonDelimitedMovieFinder;
-import testCases.injectInterfaceDependency.DatabaseMovieFinder;
-import testCases.injectInterfaceDependency.MovieFinderInterface;
-import testCases.injectInterfaceDependency.MovieListerInjectInterfaceDependency;
-import testCases.injectInterfaceDependency.MovieListerInjectNamedInterfaceDependency;
+import testCases.injectClass.MovieListerInjectClass;
+import testCases.injectInterfaceWithMultiImpl.*;
+import testCases.injectInterfaceWithOneImpl.MovieListerInjectInterfaceWithOneImpl;
+import testCases.injectInterfaceWithoutImpl.MovieListerInjectInterfaceWithoutImpl;
 import testCases.singleton.MovieListerWithSingleton;
 import testCases.withoutDependency.MovieListerWithoutDependency;
 
@@ -41,8 +39,8 @@ public class FirenzeContainerTest {
         Container container = new FirenzeContainer();
 
         // when get component which inject another class
-        MovieListerInjectClassDependency lister = (MovieListerInjectClassDependency)
-                container.getComponent(MovieListerInjectClassDependency.class);
+        MovieListerInjectClass lister = (MovieListerInjectClass)
+                container.getComponent(MovieListerInjectClass.class);
 
         // then call inject class method successfully
         List<Movie> movies = lister.moviesDirectedBy("zhang yi mou");
@@ -58,20 +56,22 @@ public class FirenzeContainerTest {
         Container container = new FirenzeContainer();
 
         // when get component which inject interface without impl
-        assertThrows(InterfaceInjectException.class, () -> {
-            container.getComponent(MovieListerInjectInterfaceDependency.class);
-        });
+        try {
+            container.getComponent(MovieListerInjectInterfaceWithoutImpl.class);
+        } catch (Exception e) {
+            assertEquals(InterfaceInjectException.class, e.getClass());
+            assertEquals("there is no implementation for interface MovieFinderInterfaceWithoutImpl", e.getMessage());
+        }
     }
 
     @Test
     public void should_get_component_which_inject_interface_with_only_one_impl_success() throws InterfaceInjectException, CircularDependencyException {
         // given configure container
         Container container = new FirenzeContainer();
-        container.registerImplementation(MovieFinderInterface.class, ColonDelimitedMovieFinder.class);
 
         // when get component which inject interface with only one implementation class
-        MovieListerInjectInterfaceDependency lister = (MovieListerInjectInterfaceDependency)
-                container.getComponent(MovieListerInjectInterfaceDependency.class);
+        MovieListerInjectInterfaceWithOneImpl lister = (MovieListerInjectInterfaceWithOneImpl)
+                container.getComponent(MovieListerInjectInterfaceWithOneImpl.class);
 
         // then call inject interface implementation class method successfully
         List<Movie> movies = lister.moviesDirectedBy("zhang yi mou");
@@ -86,26 +86,24 @@ public class FirenzeContainerTest {
     public void should_throw_error_when_get_component_which_inject_interface_with_multi_impl() {
         // given configure container
         Container container = new FirenzeContainer();
-        container.registerImplementation(MovieFinderInterface.class, ColonDelimitedMovieFinder.class);
-        container.registerImplementation(MovieFinderInterface.class, DatabaseMovieFinder.class);
 
         // when get component which inject interface with multi implementation class
-        assertThrows(InterfaceInjectException.class, () -> {
-            MovieListerInjectInterfaceDependency lister = (MovieListerInjectInterfaceDependency)
-                    container.getComponent(MovieListerInjectInterfaceDependency.class);
-        });
+        try {
+            container.getComponent(MovieListerInjectInterfaceWithMultiImpl.class);
+        } catch (Exception e) {
+            assertEquals(InterfaceInjectException.class, e.getClass());
+            assertEquals("there are multi implementation for interface MovieFinderInterfaceWithMultiImpl, must specify which implementation you want to inject", e.getMessage());
+        }
     }
 
     @Test
     public void should_get_component_which_inject_interface_annotated_with_name_success() throws InterfaceInjectException, CircularDependencyException {
         // given configure container
         Container container = new FirenzeContainer();
-        container.registerImplementation(MovieFinderInterface.class, ColonDelimitedMovieFinder.class);
-        container.registerImplementation(MovieFinderInterface.class, DatabaseMovieFinder.class);
 
         // when get component which inject inject interface with multi implementation class， but specified the implementation with @named
-        MovieListerInjectNamedInterfaceDependency lister = (MovieListerInjectNamedInterfaceDependency)
-                container.getComponent(MovieListerInjectNamedInterfaceDependency.class);
+        MovieListerInjectNamedInterfaceWithMultiImpl lister = (MovieListerInjectNamedInterfaceWithMultiImpl)
+                container.getComponent(MovieListerInjectNamedInterfaceWithMultiImpl.class);
         List<Movie> movies = lister.moviesDirectedBy("zhang yi mou");
 
         // then call inject class method successfully
@@ -121,12 +119,14 @@ public class FirenzeContainerTest {
     public void should_throw_error_when_get_component_which_inject_interface_annotated_with_not_existed_name() {
         // given configure container
         Container container = new FirenzeContainer();
-        container.registerImplementation(MovieFinderInterface.class, ColonDelimitedMovieFinder.class);
 
         // when get component which inject interface with implementation class， and the specified implementation with @named is not existed
-        assertThrows(InterfaceInjectException.class, () -> {
-            container.getComponent(MovieListerInjectNamedInterfaceDependency.class);
-        });
+        try {
+            container.getComponent(MovieListerInjectNotExistedNamedInterfaceWithMultiImpl.class);
+        } catch (Exception e) {
+            assertEquals(InterfaceInjectException.class, e.getClass());
+            assertEquals("data is not a implementation name of MovieFinderInterfaceWithMultiImpl", e.getMessage());
+        }
     }
 
     @Test
