@@ -1,8 +1,10 @@
-import annotations.Inject;
-import annotations.Named;
-import annotations.Singleton;
-import exceptions.CircularDependencyException;
-import exceptions.InterfaceInjectException;
+package cdi;
+
+import cdi.annotations.Inject;
+import cdi.annotations.Named;
+import cdi.annotations.Singleton;
+import cdi.exceptions.CircularDependencyException;
+import cdi.exceptions.InterfaceInjectException;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +15,7 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.*;
 
-public class FirenzeContainer implements Container{
+public class FirenzeContainer implements Container {
     private Set<Class> generatingClass = new HashSet<>();
     private Map<String, Object> singletonComponentMap = new HashMap<>();
 

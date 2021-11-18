@@ -1,6 +1,6 @@
 package testCases.circularDependency;
 
-import annotations.Inject;
+import cdi.annotations.Inject;
 
 public class MovieListerA {
     @Inject

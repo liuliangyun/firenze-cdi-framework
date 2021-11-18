@@ -1,5 +1,7 @@
-import exceptions.CircularDependencyException;
-import exceptions.InterfaceInjectException;
+import cdi.Container;
+import cdi.FirenzeContainer;
+import cdi.exceptions.CircularDependencyException;
+import cdi.exceptions.InterfaceInjectException;
 import org.junit.jupiter.api.Test;
 import testCases.Movie;
 import testCases.circularDependency.MovieListerA;

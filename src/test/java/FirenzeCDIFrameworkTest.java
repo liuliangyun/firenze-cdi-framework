@@ -1,3 +1,5 @@
+import cdi.Container;
+import cdi.FirenzeContainer;
 import com.thoughtworks.fusheng.integration.junit5.FuShengTest;
 import testCases.circularDependency.MovieListerA;
 import testCases.injectClass.MovieListerInjectClass;

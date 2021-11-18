@@ -1,6 +1,6 @@
 package testCases.injectClass;
 
-import annotations.Inject;
+import cdi.annotations.Inject;
 import testCases.Movie;
 
 import java.util.ArrayList;

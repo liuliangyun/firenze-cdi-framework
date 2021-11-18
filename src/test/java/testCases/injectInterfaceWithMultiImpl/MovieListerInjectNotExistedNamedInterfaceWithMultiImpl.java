@@ -1,7 +1,7 @@
 package testCases.injectInterfaceWithMultiImpl;
 
-import annotations.Inject;
-import annotations.Named;
+import cdi.annotations.Inject;
+import cdi.annotations.Named;
 import testCases.Movie;
 
 import java.util.ArrayList;

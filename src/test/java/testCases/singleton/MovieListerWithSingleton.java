@@ -1,6 +1,6 @@
 package testCases.singleton;
 
-import annotations.Singleton;
+import cdi.annotations.Singleton;
 import testCases.Movie;
 
 import java.util.ArrayList;
