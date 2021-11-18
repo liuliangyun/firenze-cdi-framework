@@ -48,7 +48,7 @@ public class FirenzeContainer implements Container{
         Constructor constructor = constructors[0];
         Object comp = null;
         try {
-            comp = constructor.newInstance(null);
+            comp = constructor.newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
